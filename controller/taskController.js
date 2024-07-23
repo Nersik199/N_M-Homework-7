@@ -116,4 +116,38 @@ function getPostsId(req, res) {
 	}
 }
 
-export default { createPost, getTasks, getPostsId }
+function updatePost(req, res) {
+	try {
+		const { id, title, description, taskDate } = req.body
+		let data = posts.findIndex(post => post.id === req.params.id)
+
+		const errors = validate.updateValidated(req)
+
+		if (errors.haveErrors) {
+			res.status(422).json({
+				errors: errors.fields,
+				message: 'Validation error',
+			})
+			return
+		}
+
+		if (data !== -1) {
+			posts[data].title = title
+			posts[data].description = description
+			posts[data].taskDate = taskDate
+			posts[data].completed = true
+			res.status(200).json({
+				message: 'Post updated successfully',
+				post: req.params.id,
+			})
+		} else {
+			res
+				.status(500)
+				.json({ message: `Post with id ${id} not found`, data: [] })
+		}
+	} catch (e) {
+		res.status(404).json({ message: e.message, status: 404 })
+	}
+}
+
+export default { createPost, getTasks, getPostsId, updatePost }
