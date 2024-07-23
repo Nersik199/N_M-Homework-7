@@ -99,4 +99,21 @@ function getTasks(req, res) {
 	}
 }
 
-export default { createPost, getTasks }
+function getPostsId(req, res) {
+	try {
+		let result = posts.find(item => {
+			return item.id === req.params.id
+		})
+		if (result) {
+			res
+				.status(200)
+				.json({ message: 'getPost successful', status: 200, data: result })
+		} else {
+			res.status(500).send({ message: 'post not found', status: 500 })
+		}
+	} catch (e) {
+		res.status(200).json({ message: e.message, status: 404 })
+	}
+}
+
+export default { createPost, getTasks, getPostsId }
