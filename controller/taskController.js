@@ -54,4 +54,49 @@ function checkTaskDate(taskDate) {
 	return count < 3
 }
 
-export default { createPost }
+function getTasks(req, res) {
+	try {
+		const errors = validate.getTasks(req)
+
+		if (errors.haveErrors) {
+			res.status(422).json({
+				errors: errors.fields,
+				message: 'Validation error',
+			})
+			return
+		}
+
+		const { page = 1 } = req.query
+
+		let list = [...posts]
+
+		list.sort((a, b) => {
+			return new Date(a.taskDate).getTime() - new Date(b.taskDate).getTime()
+		})
+
+		const limit = 5
+		const maxPageCount = Math.ceil(list.length / limit)
+
+		if (+page > maxPageCount) {
+			res.status(422).json({
+				message: 'Invalid page number',
+			})
+			return
+		}
+
+		const offset = (page - 1) * limit
+		list = list.slice(offset, offset + limit)
+
+		res.status(200).json({
+			message: 'tasks list',
+			list,
+		})
+	} catch (e) {
+		res.status(500).json({
+			message: e.message,
+			status: 404,
+		})
+	}
+}
+
+export default { createPost, getTasks }

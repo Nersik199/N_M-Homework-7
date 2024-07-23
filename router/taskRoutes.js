@@ -4,5 +4,6 @@ import controller from '../controller/taskController.js'
 const router = Router()
 
 router.post('/createPost', controller.createPost)
+router.get('/', controller.getTasks)
 
 export default router

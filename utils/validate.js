@@ -37,6 +37,16 @@ const taskSchema = Joi.object({
 	}),
 })
 
+const querySchema = Joi.object({
+	page: Joi.number().integer().min(1).max(99999).required().messages({
+		'number.base': 'Page param must be a number',
+		'number.integer': 'Page param must be an integer',
+		'number.min': 'Page param must be at least {#limit}',
+		'number.max': 'Page param cannot exceed {#limit}',
+		'any.required': 'Page param is required',
+	}),
+})
+
 function createTask(req) {
 	const { error, value } = taskSchema.validate(req.body, {
 		abortEarly: false,
@@ -61,4 +71,29 @@ function createTask(req) {
 	}
 }
 
-export default { createTask }
+function getTasks(req) {
+	const { error } = querySchema.validate(req.query, {
+		abortEarly: false,
+	})
+
+	if (error) {
+		const fields = {}
+
+		error.details.forEach(detail => {
+			console.log(detail)
+			fields[detail.path[0]] = detail.message
+		})
+
+		return {
+			fields,
+			haveErrors: true,
+		}
+	}
+
+	return {
+		fields: {},
+		haveErrors: false,
+	}
+}
+
+export default { createTask, getTasks }
