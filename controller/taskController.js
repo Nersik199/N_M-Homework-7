@@ -118,10 +118,10 @@ function getPostsId(req, res) {
 
 function updatePost(req, res) {
 	try {
-		const { id, title, description, taskDate } = req.body
+		const { title, description, taskDate } = req.body
 		let data = posts.findIndex(post => post.id === req.params.id)
 
-		const errors = validate.updateValidated(req)
+		const errors = validate.createTask(req)
 
 		if (errors.haveErrors) {
 			res.status(422).json({
@@ -143,11 +143,28 @@ function updatePost(req, res) {
 		} else {
 			res
 				.status(500)
-				.json({ message: `Post with id ${id} not found`, data: [] })
+				.json({ message: `Post with id ${req.params.id} not found`, data: [] })
 		}
 	} catch (e) {
 		res.status(404).json({ message: e.message, status: 404 })
 	}
 }
 
-export default { createPost, getTasks, getPostsId, updatePost }
+function deletePost(req, res) {
+	try {
+		let index = posts.findIndex(post => post.id === req.params.id)
+		if (index !== -1) {
+			posts.splice(index, 1)
+			res.statusCode = 200
+			res.json({ message: 'User deleted successfully', delId: req.params.id })
+		} else {
+			res
+				.status(500)
+				.send({ message: `Post with id ${req.params.id} not found`, posts: [] })
+		}
+	} catch (e) {
+		res.status(404).json({ message: e.message, status: 404 })
+	}
+}
+
+export default { createPost, getTasks, getPostsId, updatePost, deletePost }
